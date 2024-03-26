@@ -59,6 +59,9 @@ def best_improvment(matrix, cout, possible_voisins, taille_voisinage):
   return matrix, best_score
 
 
+
+
+
 def first_improvment(matrix, cout, possible_voisins, taille_voisinage):
   "Si le voisin est améliorant on le prend directement"
   taille = np.array(matrix).shape[0]
@@ -122,7 +125,10 @@ def first_improvment(matrix, cout, possible_voisins, taille_voisinage):
   return matrix, best_score
 
 
-def k_improvment(matrix, possible_voisins, taille_voisinage, k):
+
+
+
+def k_improvment(matrix, voisinage, taille_voisinage, k):
   """
   Cherche k voisins améliorants parmi les voisins possibles
   Puis prend le meilleur parmi ces k voisins
@@ -130,62 +136,75 @@ def k_improvment(matrix, possible_voisins, taille_voisinage, k):
   taille = np.array(matrix).shape[0]
   best_score = fonction_objectif(matrix, taille)
 
-  k_voisins_ameliorants = []  # best_indices
   indices = (-1, -1, -1, -1)
   taille_artificielle = taille_voisinage
-  voisinage = copy.deepcopy(possible_voisins)
+  best_indices = None
 
-  while len(k_voisins_ameliorants) < k and taille_artificielle > 0:
+  while best_indices != (-1, -1, -1, -1):
 
-    rd = random.randint(0, taille_artificielle)
-    i, j, new_i, new_j = voisinage[rd]
-    indices = (i, j, new_i, new_j)
-    if is_possible_move(matrix, i, j, new_i, new_j):
-
-      # evaluation
-      neighbor_score = relation_de_voisinage(matrix, taille, i, j, new_i,
-                                             new_j)
-      if neighbor_score < best_score:
-        k_voisins_ameliorants.append([indices, neighbor_score])
-
-      # Dans tous les cas, MAJ des voisins possibles
-      part_1 = voisinage[0:rd]
-      part_2 = voisinage[rd + 1::]
-      voisinage = part_1 + part_2 + [indices]
-      taille_artificielle -= 1
-
-  nb_voisins_ameliorants = len(k_voisins_ameliorants)
-  if nb_voisins_ameliorants == k or (taille_artificielle == 0
-                                     and nb_voisins_ameliorants != 0):
-    print(f"{nb_voisins_ameliorants} voisins améliorants trouvés")
-    print(f"Taille du voisinage : {taille_voisinage}")
-    best_new_score = 5000
     best_indices = (-1, -1, -1, -1)
+    k_voisins_ameliorants = []
 
-    for voisin in range(nb_voisins_ameliorants):
-      (i, j, new_i, new_j), score = k_voisins_ameliorants[voisin]
+    # recherche des K améliorants
+    while len(k_voisins_ameliorants) < k and taille_artificielle > 0:
 
-      # evaluation
-      if best_new_score > score:
-        best_new_score = score
-        best_indices = (i, j, new_i, new_j)
+      rd = random.randint(0, taille_artificielle)
+      i, j, new_i, new_j = voisinage[rd]
+      indices = (i, j, new_i, new_j)
+      if is_possible_move(matrix, i, j, new_i, new_j):
 
-    # j'ai trouvé mon meilleur voisin parmi les K améliorants
-    i, j, new_i, new_j = best_indices
-    matrix[i][j] = 0
-    matrix[new_i][new_j] = 1
-    print_matrix(matrix)
-    print(best_new_score)
-    print("=== ET ===")
+        # evaluation
+        neighbor_score = relation_de_voisinage(matrix, taille, i, j, new_i,
+                                               new_j)
+        if neighbor_score < best_score:
+          k_voisins_ameliorants.append([indices, neighbor_score])
 
-  elif nb_voisins_ameliorants == 0:
-    print("Plus de voisin améliorant trouvé !")
+        # Dans tous les cas, MAJ des voisins possibles
+        part_1 = voisinage[0:rd]
+        part_2 = voisinage[rd + 1::]
+        voisinage = part_1 + part_2 + [indices]
+        taille_artificielle -= 1
+
+    nb_voisins_ameliorants = len(k_voisins_ameliorants)
+    if nb_voisins_ameliorants != 0:
+      print(f"{nb_voisins_ameliorants} voisins améliorants trouvés")
+      print(f"Taille du voisinage : {taille_voisinage}")
+      best_new_score = best_score
+
+      for voisin in range(nb_voisins_ameliorants):
+        (i, j, new_i, new_j), score = k_voisins_ameliorants[voisin]
+
+        # evaluation
+        if best_new_score > score:
+          best_new_score = score
+          best_indices = (i, j, new_i, new_j)
+
+      # j'ai trouvé mon meilleur voisin parmi les K améliorants
+      i, j, new_i, new_j = best_indices
+      matrix[i][j] = 0
+      matrix[new_i][new_j] = 1
+      best_score = best_new_score
+      print_matrix(matrix)
+      print(best_score)
+      print("=== ET ===")
+
+      # RAZ des voisins
+      taille_artificielle = taille_voisinage
+
+    else:  # et que taille artificielle == 0
+      print("Plus de voisin améliorant trouvé !")
+
+  return matrix, best_score
+
+
+
+
 
 
 if __name__ == "__main__":
 
   # initialisation d'une matrice aléatoire de taille N
-  N = 14
+  N = 5
   current_matrix = giveARandomCandidateSolution(N)
   # current_matrix = [[1, 0, 1, 0], [1, 0, 0, 0], [0, 1, 1, 0], [1, 0, 1, 1]]
   possible_voisins, taille_voisinage = generation_voisins(N)
@@ -195,15 +214,21 @@ if __name__ == "__main__":
   print(current_score)
 
   # avec un first improvment
-  # while current_score != 0:
-  current_matrix, current_score = first_improvment(current_matrix, 200000,
-                                                   possible_voisins,
-                                                   taille_voisinage)
+  # current_matrix, current_score = first_improvment(current_matrix, 200000,
+  #                                                  possible_voisins,
+  #                                                  taille_voisinage)
 
   #avec un best improvment
   # current_matrix, current_score = best_improvment(current_matrix, 200000,
   # possible_voisins,
   # taille_voisinage)
+
+
+  #avec un K improvment
+  K = 10
+  current_matrix, current_score = k_improvment(current_matrix,
+                                               possible_voisins,
+                                               taille_voisinage, K)
 
   print_matrix(current_matrix)
   print(current_score)
