@@ -1,4 +1,5 @@
 import numpy as np
+import copy, random
 
 #Fichier de fonctions utilitaires
 
@@ -29,34 +30,39 @@ def somme_elements_depasse_deux(ligne):
     return np.sum(ligne) > 2
 
 
-def nombre_de_conflit(matrice,taille=0):
-    """
-    Retourne le nombre de conflits dans la matrice
-    """
-    score = 0
-    #ligne
-    for ligne in matrice:
-        if somme_elements_depasse_deux(ligne):
-            score += np.sum(ligne) - 2
 
-    matrice_transposee = np.transpose(matrice)
+def echange_one_pion(matrix, taille):
+  """
+  Selon notre relation de voisinage, dite "échange de pion", on veut pouvoir déplacer un pion à un emplacement libre.
+  """
+  # voisin = copy.deepcopy(matrix)
 
-    #colonne
-    for ligne in matrice_transposee:
-        if somme_elements_depasse_deux(ligne):
-            score += np.sum(ligne) - 2
+  # 1. on choisit un pion aléatoire
+  while True:
+    i = random.randint(0, taille - 1)  #ligne
+    j = random.randint(0, taille - 1)  #colonne
+    if (matrix[i][j] == 1):
+      break
 
-    #diagonale gauche à droite
-    matrice_decale_a_gauche = decale_gauche(matrice)
-    mtg= np.transpose(matrice_decale_a_gauche)
-    for ligne in mtg:
-        if somme_elements_depasse_deux(ligne):
-            score += np.sum(ligne) - 2
+  # 2. on le déplace sur une case libre
+  while True:
+    new_i = random.randint(0, taille - 1)
+    new_j = random.randint(0, taille - 1)
+    if (matrix[new_i][new_j] == 0):
+      # voisin[new_i][new_j] = 1
+      # voisin[i][j] = 0
+      # si le nv voisin n'a pas encore été regardé, je break
+      break
 
-    #diagonale droite à gauche
-    matrice_decale_a_droite = decale_droite(matrice)
-    mtd= np.transpose(matrice_decale_a_droite)
-    for ligne in mtd:
-        if somme_elements_depasse_deux(ligne):
-            score += np.sum(ligne) - 2        
-    return score
+  # 3. on retourne la matrice
+  # return voisin
+  return i, j, new_i, new_j
+
+
+def print_matrix(matrix):
+  for a in range(len(matrix)):
+    for b in range(len(matrix)):
+      print(matrix[a][b], end=" ")
+    print("\n")
+
+

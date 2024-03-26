@@ -1,18 +1,6 @@
-from lib.utils import *
 
-"""
-test = [
-    [1, 1, 0, 1, 0],
-    [0, 0, 1, 0, 0],
-    [0, 1, 0, 1, 0],
-    [0, 0, 1, 0, 0],
-    [0, 0, 1, 0, 0]
-]
+from lib.solutionUtils import *
 
-
-print(nombre_de_conflit(test))
-
-"""
 
 from sre_constants import JUMP
 import numpy as np
@@ -20,68 +8,7 @@ from itertools import permutations
 import copy, random
 
 
-# VERSION 1
-def giveARandomCandidateSolution_1(N):
-  """
-  This function gives a random solution (n the size of the grid).
 
-  A solution has between N and 2N pions so that each line has between 1 and 2 pions.
-  """
-  lines = []
-  model = [0] * N
-  for i in range(0, N):
-    lg = copy.copy(model)
-    lg[i] = 1
-    lines.append(lg)
-    for j in range(i + 1, N):
-      lg_2 = copy.copy(lg)
-      lg_2[j] = 1
-      lines.append(lg_2)
-
-  matrix = []
-  for _ in range(N):
-    r = random.randint(0, len(lines) - 1)
-    matrix.append(lines[r])
-
-  return matrix
-
-
-# VERSION 2
-def giveARandomCandidateSolution_2(N):
-    """
-    This function gives a random solution (n the size of the grid).
-    A line can have more than 2 pions.
-
-    Returns a matrix as a list of lists with N to 2N pions randomly placed.
-    """
-    # Initialisation de la matrice comme une liste de listes remplies de 0
-    matrix = [[0 for _ in range(N)] for _ in range(N)]
-    nbPions = random.randint(N, 2 * N)
-
-    for _ in range(nbPions):
-        while True:
-            i = random.randint(0, N - 1)
-            j = random.randint(0, N - 1)
-            if matrix[i][j] == 0:
-                matrix[i][j] = 1
-                break
-
-    return matrix
-
-
-
-def print_matrix(matrix):
-  for a in range(len(matrix)):
-    for b in range(len(matrix)):
-      print(matrix[a][b], end=" ")
-    print("\n")
-
-
-def giveNumberOfPions(matrix):
-  """
-    Cette fonction donne le nombre de pions (valeurs de 1) dans une matrice.
-    """
-  return np.sum(np.array(matrix) == 1)
 
 
 def generation_voisins(N):
@@ -113,44 +40,6 @@ def generation_voisins(N):
 
 
 
-
-
-def fonction_objectif(matrice, taille):
-  """
-  This function calculates the objective function for the given matrices.
-  """
-  nb_conflit = nombre_de_conflit(matrice, taille)
-
-  # return round(score / giveNumberOfPions(matrice), 3)
-  return 1 - ((giveNumberOfPions(matrice) - nb_conflit) / (2 * taille))
-
-
-def echange_one_pion(matrix, taille):
-  """
-  Selon notre relation de voisinage, dite "échange de pion", on veut pouvoir déplacer un pion à un emplacement libre.
-  """
-  # voisin = copy.deepcopy(matrix)
-
-  # 1. on choisit un pion aléatoire
-  while True:
-    i = random.randint(0, taille - 1)  #ligne
-    j = random.randint(0, taille - 1)  #colonne
-    if (matrix[i][j] == 1):
-      break
-
-  # 2. on le déplace sur une case libre
-  while True:
-    new_i = random.randint(0, taille - 1)
-    new_j = random.randint(0, taille - 1)
-    if (matrix[new_i][new_j] == 0):
-      # voisin[new_i][new_j] = 1
-      # voisin[i][j] = 0
-      # si le nv voisin n'a pas encore été regardé, je break
-      break
-
-  # 3. on retourne la matrice
-  # return voisin
-  return i, j, new_i, new_j
 
 
 def is_possible_move(matrix, i, j, new_i, new_j):
@@ -190,7 +79,7 @@ def relation_de_voisinage_avec_ajout(matrix, taille, i, j, new_i, new_j):
   matrix[i][j] = 0
   matrix[new_i][new_j] = 1
 
-  if nombre_de_conflit(matrix,
+  if giveNumberOfConflict(matrix,
                            taille) == 0 and giveNumberOfPions(matrix) < 2 * N:
     #ajout d'un pion
     while True:
@@ -378,7 +267,7 @@ if __name__ == "__main__":
 
   # initialisation d'une matrice aléatoire de taille N
   N = 14
-  current_matrix = giveARandomCandidateSolution_2(N)
+  current_matrix = giveARandomCandidateSolution(N)
   # current_matrix = [[1, 0, 1, 0], [1, 0, 0, 0], [0, 1, 1, 0], [1, 0, 1, 1]]
   possible_voisins, taille_voisinage = generation_voisins(N)
   current_score = fonction_objectif(current_matrix, N)
@@ -399,5 +288,5 @@ if __name__ == "__main__":
 
   print_matrix(current_matrix)
   print(current_score)
-  print("Nombre de conflits : ", str(nombre_de_conflit(current_matrix, N)))
+  print("Nombre de conflits : ", str(giveNumberOfConflict(current_matrix, N)))
   print("Nombre de pions : ", str(giveNumberOfPions(current_matrix)))
