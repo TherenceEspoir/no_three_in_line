@@ -12,7 +12,7 @@ import copy, random
 
 
 # stratégies de sélection
-def best_improvment(matrix, cout, possible_voisins, taille_voisinage):
+def best_improvement(matrix, cout, possible_voisins, taille_voisinage):
   """
   Sélectionne le voisin avec le meilleur score. 
   La fenêtre de voisinage représente ici le coût prêt à être dépensé
@@ -62,7 +62,7 @@ def best_improvment(matrix, cout, possible_voisins, taille_voisinage):
 
 
 
-def first_improvment(matrix, cout, possible_voisins, taille_voisinage):
+def first_improvement(matrix, cout, possible_voisins, taille_voisinage):
   "Si le voisin est améliorant on le prend directement"
   taille = np.array(matrix).shape[0]
   best_score = fonction_objectif(matrix, taille)
@@ -128,7 +128,7 @@ def first_improvment(matrix, cout, possible_voisins, taille_voisinage):
 
 
 
-def k_improvment(matrix, voisinage, taille_voisinage, k):
+def k_improvement(matrix, voisinage, taille_voisinage, k):
   """
   Cherche k voisins améliorants parmi les voisins possibles
   Puis prend le meilleur parmi ces k voisins
@@ -151,6 +151,7 @@ def k_improvment(matrix, voisinage, taille_voisinage, k):
       rd = random.randint(0, taille_artificielle)
       i, j, new_i, new_j = voisinage[rd]
       indices = (i, j, new_i, new_j)
+      
       if is_possible_move(matrix, i, j, new_i, new_j):
 
         # evaluation
@@ -159,11 +160,11 @@ def k_improvment(matrix, voisinage, taille_voisinage, k):
         if neighbor_score < best_score:
           k_voisins_ameliorants.append([indices, neighbor_score])
 
-        # Dans tous les cas, MAJ des voisins possibles
-        part_1 = voisinage[0:rd]
-        part_2 = voisinage[rd + 1::]
-        voisinage = part_1 + part_2 + [indices]
-        taille_artificielle -= 1
+      # Dans tous les cas, MAJ des voisins possibles
+      part_1 = voisinage[0:rd]
+      part_2 = voisinage[rd + 1::]
+      voisinage = part_1 + part_2 + [indices]
+      taille_artificielle -= 1
 
     nb_voisins_ameliorants = len(k_voisins_ameliorants)
     if nb_voisins_ameliorants != 0:
@@ -204,7 +205,7 @@ def k_improvment(matrix, voisinage, taille_voisinage, k):
 if __name__ == "__main__":
 
   # initialisation d'une matrice aléatoire de taille N
-  N = 5
+  N = 14
   current_matrix = giveARandomCandidateSolution(N)
   # current_matrix = [[1, 0, 1, 0], [1, 0, 0, 0], [0, 1, 1, 0], [1, 0, 1, 1]]
   possible_voisins, taille_voisinage = generation_voisins(N)
@@ -214,19 +215,19 @@ if __name__ == "__main__":
   print(current_score)
 
   # avec un first improvment
-  # current_matrix, current_score = first_improvment(current_matrix, 200000,
+  # current_matrix, current_score = first_improvement(current_matrix, 200000,
   #                                                  possible_voisins,
   #                                                  taille_voisinage)
 
   #avec un best improvment
-  # current_matrix, current_score = best_improvment(current_matrix, 200000,
+  # current_matrix, current_score = best_improvement(current_matrix, 200000,
   # possible_voisins,
   # taille_voisinage)
 
 
   #avec un K improvment
   K = 10
-  current_matrix, current_score = k_improvment(current_matrix,
+  current_matrix, current_score = k_improvement(current_matrix,
                                                possible_voisins,
                                                taille_voisinage, K)
 
