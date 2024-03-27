@@ -93,8 +93,8 @@ if __name__ == "__main__":
 
 
 import csv
-
 import numpy as np
+import matplotlib.pyplot as plt
 
 def read_data_by_strat(file_path):
     strategy_data = {}
@@ -110,66 +110,59 @@ def read_data_by_strat(file_path):
                 strategy_data[strategy] = []
             strategy_data[strategy].append((N, score, nbEval, nbSolutionCourante))
     return strategy_data
+if __name__ == "__main__":
+    scores_file = 'results/results_1.csv'
+    all_stat = read_data_by_strat(scores_file)
 
-scores_file = 'results/results_1.csv'
-all_stat = read_data_by_strat(scores_file)
+    # Calculer les moyennes des scores, des nombres d'évaluations et des nombres de solutions courantes
+    mean_scores_by_strategy = {}
+    mean_evals_by_strategy = {}
+    mean_solutions_by_strategy = {}
+    for strategy, data in all_stat.items():
+        mean_scores_by_strategy[strategy] = {}
+        mean_evals_by_strategy[strategy] = {}
+        mean_solutions_by_strategy[strategy] = {}
+        for N in [4, 5, 9]:
+            scores_for_N = [entry[1] for entry in data if entry[0] == N]
+            evals_for_N = [entry[2] for entry in data if entry[0] == N]
+            solutions_for_N = [entry[3] for entry in data if entry[0] == N]
+            mean_score_for_N = np.mean(scores_for_N)
+            mean_eval_for_N = np.mean(evals_for_N)
+            mean_solution_for_N = np.mean(solutions_for_N)
+            mean_scores_by_strategy[strategy][N] = mean_score_for_N
+            mean_evals_by_strategy[strategy][N] = mean_eval_for_N
+            mean_solutions_by_strategy[strategy][N] = mean_solution_for_N
 
-#boucle for sur all_stat pour récupérer la moyenne des scores, moyenne des nbEval et moyenne des nbSolutionCourante par taille de matrice pour chaque stratégie
-#puis afficher les graphiques
-import matplotlib.pyplot as plt
-
-
-tab_Result = []
-for strategy, data in all_stat.items():
-    Ns = set([d[0] for d in data])
-    moyennes = {}
-    for N in Ns:
-        score  = [d[1] for d in data if d[0] == N]
-        nbEvals = [d[2] for d in data if d[0] == N]
-        nbSolutionsCourantes = [d[3] for d in data if d[0] == N]
-        tab_Result.append([strategy,N, score,nbEvals,nbSolutionsCourantes])
-
-print(tab_Result)
-
-
-for i in range(0, len(tab_Result)):
-    
-    strategy = tab_Result[i][0]
-    taille = tab_Result[i][1]
-    mean_score = np.mean(tab_Result[i][2])
-    mean_nbEval = np.mean(tab_Result[i][3])
-    mean_nbSolCour = np.mean(tab_Result[i][4])
-
-    #graphique du score moyen en fonction de la taille de la matrice pour chaque stratégie
-    plt.plot(taille, mean_score, label=strategy)
-    plt.xlabel("Taille de la matrice")
-    plt.ylabel("Score moyen")
-    plt.title("Score moyen en fonction de la taille de la matrice")
+    # Tracer les courbes pour les scores moyens
+    plt.figure(figsize=(16, 6))
+    plt.subplot(1, 3, 1)
+    for strategy, mean_scores_for_strategy in mean_scores_by_strategy.items():
+        plt.plot(list(mean_scores_for_strategy.keys()), list(mean_scores_for_strategy.values()), marker='o', label=strategy)
+    plt.xlabel('Taille de la matrice')
+    plt.ylabel('Score moyen')
+    plt.title('Score moyen en fonction de la taille de la matrice')
     plt.legend()
-    plt.show()
+    plt.grid(True)
 
-    #graphique du nombre d'évaluations moyen en fonction de la taille de la matrice pour chaque stratégie
-    plt.plot(taille, mean_nbEval, label=strategy)
-    plt.xlabel("Taille de la matrice")
-    plt.ylabel("Nombre d'évaluations moyen")
-    plt.title("Nombre d'évaluations moyen en fonction de la taille de la matrice")
+    # Tracer les courbes pour les nombres d'évaluations moyens
+    plt.subplot(1, 3, 2)
+    for strategy, mean_evals_for_strategy in mean_evals_by_strategy.items():
+        plt.plot(list(mean_evals_for_strategy.keys()), list(mean_evals_for_strategy.values()), marker='o', label=strategy)
+    plt.xlabel('Taille de la matrice')
+    plt.ylabel('Nombre d\'évaluations moyen')
+    plt.title('Nombre d\'évaluations moyen en fonction de la taille de la matrice')
     plt.legend()
-    plt.show()
+    plt.grid(True)
 
-    #graphique du nombre de solutions courantes moyen en fonction de la taille de la matrice pour chaque stratégie
-    plt.plot(taille, mean_nbSolCour, label=strategy)
-    plt.xlabel("Taille de la matrice")
-    plt.ylabel("Nombre de solutions courantes moyen")
-    plt.title("Nombre de solutions courantes moyen en fonction de la taille de la matrice")
+    # Tracer les courbes pour les nombres de solutions courantes moyens
+    plt.subplot(1, 3, 3)
+    for strategy, mean_solutions_for_strategy in mean_solutions_by_strategy.items():
+        plt.plot(list(mean_solutions_for_strategy.keys()), list(mean_solutions_for_strategy.values()), marker='o', label=strategy)
+    plt.xlabel('Taille de la matrice')
+    plt.ylabel('Nombre de solutions courantes moyen')
+    plt.title('Nombre de solutions courantes moyen en fonction de la taille de la matrice')
     plt.legend()
+    plt.grid(True)
+
+    plt.tight_layout()
     plt.show()
-
-
-
-
-#graphique du score moyen en fonction de la taille de la matrice pour chaque stratégie
-
-
-#on veut 5 grapiques avec autant de courbes que de stratégies
-
-
