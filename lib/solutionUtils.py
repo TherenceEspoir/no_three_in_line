@@ -1,6 +1,7 @@
 
 import copy, random
 import numpy as np
+random.seed(42)
 
 from .conflictUtils import giveNumberOfConflict
 

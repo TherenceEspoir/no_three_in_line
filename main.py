@@ -3,13 +3,13 @@ from lib.solutionUtils import *
 from lib.voisinUtils import *
 from lib.conflictUtils import *
 
-
+import matplotlib.pyplot as plt
 from sre_constants import JUMP
 import numpy as np
 from itertools import permutations
 import copy, random
 
-
+random.seed(42)
 
 # stratégies de sélection
 def best_improvement(matrix, cout, possible_voisins, taille_voisinage):
@@ -80,7 +80,7 @@ def first_improvement(matrix, cout, possible_voisins, taille_voisinage):
     # tant que je n'ai pas de voisin minimisant mon score
     print("eval ", str(nb_eval), " sur ", str(cout))
     while best_score <= neighbor_score and nb_eval < cout and taille_artificielle > 0:
-      rd = random.randint(0, taille_artificielle)
+      rd = random.randint(0, taille_artificielle-1)
       i, j, new_i, new_j = voisinage[rd]
       indices = (i, j, new_i, new_j)
       if is_possible_move(matrix, i, j, new_i, new_j):
@@ -148,7 +148,7 @@ def k_improvement(matrix, voisinage, taille_voisinage, k):
     # recherche des K améliorants
     while len(k_voisins_ameliorants) < k and taille_artificielle > 0:
 
-      rd = random.randint(0, taille_artificielle)
+      rd = random.randint(0, taille_artificielle-1)
       i, j, new_i, new_j = voisinage[rd]
       indices = (i, j, new_i, new_j)
       
@@ -200,14 +200,14 @@ def k_improvement(matrix, voisinage, taille_voisinage, k):
 
 
 
-
+"""
 
 if __name__ == "__main__":
 
   # initialisation d'une matrice aléatoire de taille N
   N = 14
   current_matrix = giveARandomCandidateSolution(N)
-  # current_matrix = [[1, 0, 1, 0], [1, 0, 0, 0], [0, 1, 1, 0], [1, 0, 1, 1]]
+
   possible_voisins, taille_voisinage = generation_voisins(N)
   current_score = fonction_objectif(current_matrix, N)
 
@@ -235,3 +235,69 @@ if __name__ == "__main__":
   print(current_score)
   print("Nombre de conflits : ", str(giveNumberOfConflict(current_matrix, N)))
   print("Nombre de pions : ", str(giveNumberOfPions(current_matrix)))
+"""
+
+
+if __name__ == "__main__":
+    # Initialisation du seed
+    random.seed(42)
+
+    # Nombre d'exécutions et de matrices à tester
+    nombre_d_executions = 10
+    nombre_de_matrices = 5
+
+    # Taille de la matrice
+    N = 10
+
+    scores_conflits = []
+    scores_pions = []
+
+    """
+    for i in range(1, nombre_de_matrices + 1):
+        current_matrix = giveARandomCandidateSolution(N)
+        with open(f"data/instance_{i}.txt", "w") as file:
+            for row in current_matrix:
+                file.write(" ".join(map(str, row)) + "\n")
+    """
+
+    #prendre les instances et les résoudre
+    for i in range(1, nombre_de_matrices + 1):
+        with open(f"data/instance_{i}.txt", "r") as file:
+            current_matrix = [[int(x) for x in line.split()] for line in file]
+
+        possible_voisins, taille_voisinage = generation_voisins(N)
+        current_score = fonction_objectif(current_matrix, N)
+
+        print_matrix(current_matrix)
+        print(current_score)
+
+        # avec un first improvment
+        # current_matrix, current_score = first_improvement(current_matrix, 200000,
+        #                                                  possible_voisins,
+        #                                                  taille_voisinage)
+
+        # avec un best improvment
+        # current_matrix, current_score = best_improvement(current_matrix, 200000,
+        # possible_voisins,
+        # taille_voisinage)
+
+        # avec un K improvment
+        K = 10
+        current_matrix, current_score = k_improvement(current_matrix,
+                                                    possible_voisins,
+                                                    taille_voisinage, K)
+        scores_conflits.append(giveNumberOfConflict(current_matrix, N))
+        scores_pions.append(giveNumberOfPions(current_matrix))
+
+        print_matrix(current_matrix)
+        print(current_score)
+        print("Nombre de conflits : ", str(giveNumberOfConflict(current_matrix, N)))
+        print("Nombre de pions : ", str(giveNumberOfPions(current_matrix)))
+
+    plt.plot(range(1, nombre_de_matrices + 1), scores_conflits, label="Nombre de conflits")
+    plt.plot(range(1, nombre_de_matrices + 1), scores_pions, label="Nombre de pions")
+    plt.xlabel("Instances de matrices")
+    plt.ylabel("Scores")
+    plt.title("Performance de l'algorithme pour différentes instances de matrices")
+    plt.legend()
+    plt.show()                    

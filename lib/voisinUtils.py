@@ -1,5 +1,6 @@
 from .solutionUtils import fonction_objectif, giveNumberOfConflict, giveNumberOfPions
 import random
+random.seed(42)
 
 def is_possible_move(matrix, i, j, new_i, new_j):
   """
