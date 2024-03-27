@@ -42,5 +42,4 @@ def fonction_objectif(matrice, taille):
   """
   nb_conflit = giveNumberOfConflict(matrice, taille)
 
-  # return round(score / giveNumberOfPions(matrice), 3)
-  return 1 - ((giveNumberOfPions(matrice) - nb_conflit) / (2 * taille))
+  return round(1 - ((giveNumberOfPions(matrice) - nb_conflit) / (2 * taille)), 4)

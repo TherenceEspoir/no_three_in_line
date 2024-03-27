@@ -46,13 +46,13 @@ def best_improvement(matrix, cout, possible_voisins, taille_voisinage):
       (i, j, new_i, new_j) = best_indices
       matrix[i][j] = 0
       matrix[new_i][new_j] = 1
-      print_matrix(matrix)
-      print(best_score)
-      print("=== ET ===")
+      # print_matrix(matrix)
+      # print(best_score)
+      # print("=== ET ===")
     elif nb_eval < cout:
       print("Plus de meilleur voisin trouvé (optimum local) !")
-      print("nb eval : ", str(nb_eval))
-      print("taille voisinage : ", str(taille_voisinage))
+      # print("nb eval : ", str(nb_eval))
+      # print("taille voisinage : ", str(taille_voisinage))
     else:
       print("Nombre MAX d'évaluations atteint")
 
@@ -62,7 +62,7 @@ def best_improvement(matrix, cout, possible_voisins, taille_voisinage):
 
 
 
-def first_improvement(matrix, cout, possible_voisins, taille_voisinage):
+def first_improvement(matrix, cout, voisinage, taille_voisinage):
   "Si le voisin est améliorant on le prend directement"
   taille = np.array(matrix).shape[0]
   best_score = fonction_objectif(matrix, taille)
@@ -70,7 +70,6 @@ def first_improvement(matrix, cout, possible_voisins, taille_voisinage):
 
   best_indices = None
   taille_artificielle = taille_voisinage
-  voisinage = copy.deepcopy(possible_voisins)
 
   while best_indices != -1 and nb_eval < cout:
     best_indices = -1
@@ -78,7 +77,7 @@ def first_improvement(matrix, cout, possible_voisins, taille_voisinage):
     indices = (-1, -1, -1, -1)
 
     # tant que je n'ai pas de voisin minimisant mon score
-    print("eval ", str(nb_eval), " sur ", str(cout))
+    # print("eval ", str(nb_eval), " sur ", str(cout))
     while best_score <= neighbor_score and nb_eval < cout and taille_artificielle > 0:
       rd = random.randint(0, taille_artificielle-1)
       i, j, new_i, new_j = voisinage[rd]
@@ -97,8 +96,8 @@ def first_improvement(matrix, cout, possible_voisins, taille_voisinage):
       taille_artificielle -= 1
 
     # un voisin améliorant le score a été trouvé
-    print("best score : ", str(best_score), " et neighboor Score ",
-          str(neighbor_score))
+    # print("best score : ", str(best_score), " et neighboor Score ",
+    #       str(neighbor_score))
     if neighbor_score < best_score:
       best_score = neighbor_score
       best_indices = indices
@@ -106,20 +105,19 @@ def first_improvement(matrix, cout, possible_voisins, taille_voisinage):
       matrix[i][j] = 0
       matrix[new_i][new_j] = 1
 
-      print_matrix(matrix)
-      print(best_score)
-      print("=== ET ===")
+      # print_matrix(matrix)
+      # print(best_score)
+      # print("=== ET ===")
 
       # RAZ des voisins
       taille_artificielle = taille_voisinage
-      voisinage = copy.deepcopy(possible_voisins)
 
     elif taille_artificielle == 0:
       print("Plus de voisin améliorant trouvé !")
-      print("nb eval : ", str(nb_eval))
-      print("taille voisinage : ", str(taille_voisinage))
+      # print("nb eval : ", str(nb_eval))
+      # print("taille voisinage : ", str(taille_voisinage))
     elif nb_eval >= cout:
-      print("taille arti : ", str(taille_artificielle))
+      # print("taille arti : ", str(taille_artificielle))
       print("Nombre MAX d'évaluations atteint : ", str(nb_eval))
 
   return matrix, best_score
@@ -185,9 +183,9 @@ def k_improvement(matrix, voisinage, taille_voisinage, k):
       matrix[i][j] = 0
       matrix[new_i][new_j] = 1
       best_score = best_new_score
-      print_matrix(matrix)
-      print(best_score)
-      print("=== ET ===")
+      # print_matrix(matrix)
+      # print(best_score)
+      # print("=== ET ===")
 
       # RAZ des voisins
       taille_artificielle = taille_voisinage
@@ -200,58 +198,84 @@ def k_improvement(matrix, voisinage, taille_voisinage, k):
 
 if __name__ == "__main__":
     
-    # Nombre d'exécutions et de matrices à tester
-    nombre_d_executions = 10
+  nombre_run = 10
 
-    scores_conflits = []
-    scores_pions = []
+  scores_first = []
 
+  taille_matrices = [4, 5, 6, 10, 12, 13, 14] #20, 25, 30
+
+  
+  for N in taille_matrices :
+    current_matrix = giveARandomCandidateSolution(N)
+    with open(f"data/instance_{N}.txt", "w") as file:
+      for row in current_matrix:
+          file.write(" ".join(map(str, row)) + "\n")
+  
+
+  # tester les différentes instances
+  for N in taille_matrices :
+
+    possible_voisins, taille_voisinage = generation_voisins(N)
+    tab_scores = []
+
+
+    # avec un first improvement
+    for iteration in range(nombre_run) :
+      # lecture de l'instance initiale
+      with open(f"data/instance_{N}.txt", "r") as file:
+          current_matrix = [[int(x) for x in line.split()] for line in file]
+
+      print(f"Itération {iteration+1} ({N})")
+
+      current_matrix, current_score = first_improvement(current_matrix, 200000,
+                                                      possible_voisins,
+                                                      taille_voisinage)
+      tab_scores.append(current_score)
+    scores_first.append(tab_scores)
+
+
+
+
+    # lecture de l'instance initiale - 2
+    # with open(f"data/instance_{i}.txt", "r") as file:
+    #     current_matrix = [[int(x) for x in line.split()] for line in file]
+
+    # # avec un best improvment
+    # current_matrix, current_score = best_improvement(current_matrix, 200000,
+    # possible_voisins,
+    # taille_voisinage)
+
+
+
+    # lecture de l'instance initiale - 3
+    # with open(f"data/instance_{i}.txt", "r") as file:
+    #     current_matrix = [[int(x) for x in line.split()] for line in file]
+
+    # # avec un K improvment
+    # K = [2, 5, 10]
+    # for k in K :
+    #   current_matrix, current_score = k_improvement(current_matrix,
+    #                                             possible_voisins,
+    #                                             taille_voisinage, k)
     
-    for N in [4, 5, 6, 8, 10, 14, 15, 16, 20, 30]:
-      current_matrix = giveARandomCandidateSolution(N)
-      with open(f"data/instance_{N}.txt", "w") as file:
-        for row in current_matrix:
-            file.write(" ".join(map(str, row)) + "\n")
-    
 
-    # tester les différentes instances
-    for i in range(1, nombre_de_matrices + 1):
-        with open(f"data/instance_{i}.txt", "r") as file:
-            current_matrix = [[int(x) for x in line.split()] for line in file]
+    print_matrix(current_matrix)
+    print(current_score)
+    print("Nombre de conflits : ", str(giveNumberOfConflict(current_matrix, N)))
+    print("Nombre de pions : ", str(giveNumberOfPions(current_matrix)))
 
-        possible_voisins, taille_voisinage = generation_voisins(N)
-        current_score = fonction_objectif(current_matrix, N)
 
-        print_matrix(current_matrix)
-        print(current_score)
 
-        # avec un first improvment
-        # current_matrix, current_score = first_improvement(current_matrix, 200000,
-        #                                                  possible_voisins,
-        #                                                  taille_voisinage)
+  #Moyenne des scores pour chaque first
+  moy_first = []
+  for tab in scores_first :
+    moy_first.append(sum(tab)/len(tab))
 
-        # avec un best improvment
-        # current_matrix, current_score = best_improvement(current_matrix, 200000,
-        # possible_voisins,
-        # taille_voisinage)
 
-        # avec un K improvment
-        K = 10
-        current_matrix, current_score = k_improvement(current_matrix,
-                                                    possible_voisins,
-                                                    taille_voisinage, K)
-        scores_conflits.append(giveNumberOfConflict(current_matrix, N))
-        scores_pions.append(giveNumberOfPions(current_matrix))
-
-        print_matrix(current_matrix)
-        print(current_score)
-        print("Nombre de conflits : ", str(giveNumberOfConflict(current_matrix, N)))
-        print("Nombre de pions : ", str(giveNumberOfPions(current_matrix)))
-
-    plt.plot(range(1, nombre_de_matrices + 1), scores_conflits, label="Nombre de conflits")
-    plt.plot(range(1, nombre_de_matrices + 1), scores_pions, label="Nombre de pions")
-    plt.xlabel("Instances de matrices")
-    plt.ylabel("Scores")
-    plt.title("Performance de l'algorithme pour différentes instances de matrices")
-    plt.legend()
-    plt.show()                    
+  plt.plot(taille_matrices, moy_first, 'b-o', label="first improvement")
+  plt.xlabel("N, taille de la matrice")
+  plt.xticks(range(min(taille_matrices), max(taille_matrices)+1, 1))
+  plt.ylabel("score moyen")
+  plt.title("Graphique des scores moyens obtenus pour 10 exécutions de chaque algo sur une instance de taille donnée")
+  plt.legend()
+  plt.show()                    
