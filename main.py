@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from sre_constants import JUMP
 import numpy as np
 from itertools import permutations
-import copy, random
+import copy, random, csv
 
 
 
@@ -199,13 +199,19 @@ def k_improvement(matrix, voisinage, taille_voisinage, k):
 
 if __name__ == "__main__":
     
-  nombre_run = 10
+  nombre_run = 0
+  with open(f"config", "r") as file:
+      for line in file :
+          data = line.split("=")
+          if data[0] == "NOMBRE_RUN" :
+              nombre_run = int(data[1])
 
   scores_first = []
   evals_first = []
   convergence_first = []
 
-  taille_matrices = [4, 5, 6, 10, 12, 13, 14] #20, 25, 30
+  # taille_matrices = [4, 5, 6, 10, 12, 13, 14] #20, 25, 30
+  taille_matrices = [4, 5, 6] #20, 25, 30
 
   
   for N in taille_matrices :
@@ -213,66 +219,74 @@ if __name__ == "__main__":
     with open(f"data/instance_{N}.txt", "w") as file:
       for row in current_matrix:
           file.write(" ".join(map(str, row)) + "\n")
+
+  # création du fichier résultats
+  with open(f"results/results_1.csv", 'w', newline='') as csvfile:
+    spamwriter = csv.writer(csvfile, delimiter=',',
+                                quotechar='|', quoting=csv.QUOTE_MINIMAL)
+    
+    spamwriter.writerow(['N'] + ['itération'] + ['score'] + ['nb_eval'] + ['nb_pas'])
   
 
-  # tester les différentes instances
-  for N in taille_matrices :
+    # tester les différentes instances
+    for N in taille_matrices :
 
-    possible_voisins, taille_voisinage = generation_voisins(N)
-    tab_scores = []
-    tab_nbEval = []
-    tab_nbSolCou = []
+      possible_voisins, taille_voisinage = generation_voisins(N)
+      tab_scores = []
+      tab_nbEval = []
+      tab_nbSolCou = []
 
 
-    # avec un first improvement
-    for iteration in range(nombre_run) :
-      # lecture de l'instance initiale
-      with open(f"data/instance_{N}.txt", "r") as file:
+      # avec un first improvement
+      for iteration in range(nombre_run) :
+        # lecture de l'instance initiale
+        with open(f"data/instance_{N}.txt", "r") as file:
           current_matrix = [[int(x) for x in line.split()] for line in file]
 
-      print(f"Itération {iteration+1} ({N})")
+        print(f"Itération {iteration+1} ({N})")
 
-      _, current_score, current_nbEval, current_nbSolutionCourante = first_improvement(current_matrix, 200000,
-                                                      possible_voisins,
-                                                      taille_voisinage)
-      tab_scores.append(current_score)
-      tab_nbEval.append(current_nbEval)
-      tab_nbSolCou.append(current_nbSolutionCourante)
+        _, current_score, current_nbEval, current_nbSolutionCourante = first_improvement(current_matrix, 200000,
+                                                        possible_voisins,
+                                                        taille_voisinage)
+        tab_scores.append(current_score)
+        tab_nbEval.append(current_nbEval)
+        tab_nbSolCou.append(current_nbSolutionCourante)
+        spamwriter.writerow([N, iteration +1 , current_score, current_nbEval, current_nbSolutionCourante])
 
-    scores_first.append(tab_scores)
-    evals_first.append(tab_nbEval)
-    convergence_first.append(tab_nbSolCou)
-
-
-
-
-    # lecture de l'instance initiale - 2
-    # with open(f"data/instance_{i}.txt", "r") as file:
-    #     current_matrix = [[int(x) for x in line.split()] for line in file]
-
-    # # avec un best improvment
-    # current_matrix, current_score = best_improvement(current_matrix, 200000,
-    # possible_voisins,
-    # taille_voisinage)
+      scores_first.append(tab_scores)
+      evals_first.append(tab_nbEval)
+      convergence_first.append(tab_nbSolCou)
 
 
 
-    # lecture de l'instance initiale - 3
-    # with open(f"data/instance_{i}.txt", "r") as file:
-    #     current_matrix = [[int(x) for x in line.split()] for line in file]
 
-    # # avec un K improvment
-    # K = [2, 5, 10]
-    # for k in K :
-    #   current_matrix, current_score = k_improvement(current_matrix,
-    #                                             possible_voisins,
-    #                                             taille_voisinage, k)
-    
+      # lecture de l'instance initiale - 2
+      # with open(f"data/instance_{i}.txt", "r") as file:
+      #     current_matrix = [[int(x) for x in line.split()] for line in file]
 
-    print_matrix(current_matrix)
-    print(current_score)
-    print("Nombre de conflits : ", str(giveNumberOfConflict(current_matrix, N)))
-    print("Nombre de pions : ", str(giveNumberOfPions(current_matrix)))
+      # # avec un best improvment
+      # current_matrix, current_score = best_improvement(current_matrix, 200000,
+      # possible_voisins,
+      # taille_voisinage)
+
+
+
+      # lecture de l'instance initiale - 3
+      # with open(f"data/instance_{i}.txt", "r") as file:
+      #     current_matrix = [[int(x) for x in line.split()] for line in file]
+
+      # # avec un K improvment
+      # K = [2, 5, 10]
+      # for k in K :
+      #   current_matrix, current_score = k_improvement(current_matrix,
+      #                                             possible_voisins,
+      #                                             taille_voisinage, k)
+      
+
+      print_matrix(current_matrix)
+      print(current_score)
+      print("Nombre de conflits : ", str(giveNumberOfConflict(current_matrix, N)))
+      print("Nombre de pions : ", str(giveNumberOfPions(current_matrix)))
 
 
 
