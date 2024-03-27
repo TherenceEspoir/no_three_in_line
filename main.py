@@ -202,23 +202,19 @@ if __name__ == "__main__":
     
     # Nombre d'exécutions et de matrices à tester
     nombre_d_executions = 10
-    nombre_de_matrices = 5
-
-    # Taille de la matrice
-    N = 10
 
     scores_conflits = []
     scores_pions = []
 
-    """
-    for i in range(1, nombre_de_matrices + 1):
-        current_matrix = giveARandomCandidateSolution(N)
-        with open(f"data/instance_{i}.txt", "w") as file:
-            for row in current_matrix:
-                file.write(" ".join(map(str, row)) + "\n")
-    """
+    
+    for N in [4, 5, 6, 8, 10, 14, 15, 16, 20, 30]:
+      current_matrix = giveARandomCandidateSolution(N)
+      with open(f"data/instance_{N}.txt", "w") as file:
+        for row in current_matrix:
+            file.write(" ".join(map(str, row)) + "\n")
+    
 
-    #prendre les instances et les résoudre
+    # tester les différentes instances
     for i in range(1, nombre_de_matrices + 1):
         with open(f"data/instance_{i}.txt", "r") as file:
             current_matrix = [[int(x) for x in line.split()] for line in file]
