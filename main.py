@@ -9,7 +9,7 @@ import numpy as np
 from itertools import permutations
 import copy, random
 
-random.seed(42)
+
 
 # stratégies de sélection
 def best_improvement(matrix, cout, possible_voisins, taille_voisinage):
@@ -198,50 +198,8 @@ def k_improvement(matrix, voisinage, taille_voisinage, k):
   return matrix, best_score
 
 
-
-
-"""
-
 if __name__ == "__main__":
-
-  # initialisation d'une matrice aléatoire de taille N
-  N = 14
-  current_matrix = giveARandomCandidateSolution(N)
-
-  possible_voisins, taille_voisinage = generation_voisins(N)
-  current_score = fonction_objectif(current_matrix, N)
-
-  print_matrix(current_matrix)
-  print(current_score)
-
-  # avec un first improvment
-  # current_matrix, current_score = first_improvement(current_matrix, 200000,
-  #                                                  possible_voisins,
-  #                                                  taille_voisinage)
-
-  #avec un best improvment
-  # current_matrix, current_score = best_improvement(current_matrix, 200000,
-  # possible_voisins,
-  # taille_voisinage)
-
-
-  #avec un K improvment
-  K = 10
-  current_matrix, current_score = k_improvement(current_matrix,
-                                               possible_voisins,
-                                               taille_voisinage, K)
-
-  print_matrix(current_matrix)
-  print(current_score)
-  print("Nombre de conflits : ", str(giveNumberOfConflict(current_matrix, N)))
-  print("Nombre de pions : ", str(giveNumberOfPions(current_matrix)))
-"""
-
-
-if __name__ == "__main__":
-    # Initialisation du seed
-    random.seed(42)
-
+    
     # Nombre d'exécutions et de matrices à tester
     nombre_d_executions = 10
     nombre_de_matrices = 5

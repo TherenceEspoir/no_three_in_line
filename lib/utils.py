@@ -1,6 +1,6 @@
 import numpy as np
 import copy, random
-random.seed(42)
+
 
 #Fichier de fonctions utilitaires
 
