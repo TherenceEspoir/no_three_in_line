@@ -194,119 +194,59 @@ def k_improvement(matrix, voisinage, taille_voisinage, k):
     else:  # et que taille artificielle == 0
       print("Plus de voisin améliorant trouvé !")
 
-  return matrix, best_score, nb_eval, nbSolutionCourante
+  return matrix, best_score, nb_eval, nbSolutionCourante 
 
 
-if __name__ == "__main__":
-    
-  nombre_run = 0
-  with open(f"config", "r") as file:
-      for line in file :
-          data = line.split("=")
-          if data[0] == "NOMBRE_RUN" :
-              nombre_run = int(data[1])
-
-
-
-  # taille_matrices = [4, 5, 6, 10, 12, 13, 14] #20, 25, 30
-  taille_matrices = [4, 5, 6] #20, 25, 30
-
-  
-  for N in taille_matrices :
-    current_matrix = giveARandomCandidateSolution(N)
-    with open(f"data/instance_{N}.txt", "w") as file:
-      for row in current_matrix:
-          file.write(" ".join(map(str, row)) + "\n")
-
-  # création du fichier résultats
-  with open(f"results/results_first.csv", 'w', newline='') as csvfile:
-    spamwriter = csv.writer(csvfile, delimiter=',',
-                                quotechar='|', quoting=csv.QUOTE_MINIMAL)
-    
-    spamwriter.writerow(['Strategie'] + ['N'] + ['iteration'] + ['score'] + ['nb_eval'] + ['nb_pas'])
-  
-
-    # tester les différentes instances
-    for N in taille_matrices :
-
-      possible_voisins, taille_voisinage = generation_voisins(N)
-
-      # avec un first improvement
-      strat = "F"
-      for iteration in range(nombre_run) :
-        # lecture de l'instance initiale
-        with open(f"data/instance_{N}.txt", "r") as file:
-          current_matrix = [[int(x) for x in line.split()] for line in file]
-
-        print(f"Itération {iteration+1} ({N})")
-
-        _, current_score, current_nbEval, current_nbSolutionCourante = first_improvement(current_matrix, 200000,
-                                                        possible_voisins,
-                                                        taille_voisinage)
-        spamwriter.writerow([strat, N, iteration +1 , current_score, current_nbEval, current_nbSolutionCourante])
-
-
-
-
-      # lecture de l'instance initiale - 2
-      # with open(f"data/instance_{i}.txt", "r") as file:
-      #     current_matrix = [[int(x) for x in line.split()] for line in file]
-
-      # # avec un best improvment
-      # current_matrix, current_score = best_improvement(current_matrix, 200000,
-      # possible_voisins,
-      # taille_voisinage)
-
-
-
-      # lecture de l'instance initiale - 3
-      # with open(f"data/instance_{i}.txt", "r") as file:
-      #     current_matrix = [[int(x) for x in line.split()] for line in file]
-
-      # # avec un K improvment
-      # K = [2, 5, 10]
-      # for k in K :
-      #   current_matrix, current_score = k_improvement(current_matrix,
-      #                                             possible_voisins,
-      #                                             taille_voisinage, k)
+                   
       
 
-      print_matrix(current_matrix)
-      print(current_score)
-      print("Nombre de conflits : ", str(giveNumberOfConflict(current_matrix, N)))
-      print("Nombre de pions : ", str(giveNumberOfPions(current_matrix)))
+if __name__ == "__main__":
+
+  nombre_executions = 0
+  with open(f"config", "r") as file:
+    for line in file :
+      data = line.split("=")
+      if data[0] == "NOMBRE_RUN" :
+        nombre_executions = int(data[1])
+              
+  taille_matrices = [4, 5, 9]
+  # taille_matrices = [4, 5, 6, 10, 12, 13, 14] #20, 25, 30
+
+  strategies = ["best", "first", "k2", "k5", "k10"]  # Liste des stratégies incluant kimprovement pour k = 1, 2 et 3
 
 
+  with open("results/results_1.csv", "w") as f:
+    writer = csv.writer(f)
+    writer.writerow(["strategy", "N", "score", "nbEval", "nbSolutionCourante"])
+    
 
-  # Pour mes "nombre_run" itérations sur ma matrice de taille N avec first
-  # ave_first = []
-  # worst_first = []
-  # best_first = []
-  # for tab in scores_first :
-  #   ave_first.append(sum(tab)/len(tab))
-  #   worst_first.append(max(tab))
-  #   best_first.append(min(tab))
-  # aveEval_first = []
-  # for tab in evals_first :
-  #   aveEval_first.append(sum(tab)/len(tab))
-  # ave_convergence = []
-  # for tab in convergence_first :
-  #   ave_convergence.append(sum(tab)/len(tab))
+    for strategy in strategies:
+      if strategy.startswith("k"):
+        k = int(strategy[1:])  # Récupérer la valeur de k à partir du nom de la stratégie
+      
+      for N in taille_matrices:
+        possible_voisins, taille_voisinage = generation_voisins(N)
+        # Générer les instances et calculer les scores
+        for _ in range(nombre_executions):
+          current_matrix = giveARandomCandidateSolution(N)
+          # Appliquer la stratégie
+          if strategy == "best":
+            current_matrix, current_score, current_nbEval, current_nbSolutionCourante = best_improvement(current_matrix, 200000,
+                                                        possible_voisins,
+                                                        taille_voisinage)
+          elif strategy == "first":
+            current_matrix, current_score, current_nbEval, current_nbSolutionCourante = first_improvement(current_matrix, 200000,
+                                                          possible_voisins,
+                                                          taille_voisinage)
+          elif strategy.startswith("k"):
+            current_matrix, current_score, current_nbEval, current_nbSolutionCourante = k_improvement(current_matrix, possible_voisins,
+                                                      taille_voisinage, k)
+          else:
+            raise ValueError("Stratégie non valide")
 
 
-  # plt.plot(taille_matrices, ave_first, 'b-o', label="first improvement")
-  # plt.xlabel("N, taille de la matrice")
-  # plt.xticks(range(min(taille_matrices), max(taille_matrices)+1, 1))
-  # plt.ylabel("score moyen")
-  # plt.title("Graphique des scores moyens obtenus pour 10 exécutions de chaque algo sur une instance de taille donnée")
-  # plt.legend()
-  # plt.show()
-
-
-  # plt.plot(taille_matrices, aveEval_first, 'b-o', label="first improvement")
-  # plt.xlabel("N, taille de la matrice")
-  # plt.xticks(range(min(taille_matrices), max(taille_matrices)+1, 1))
-  # plt.ylabel("nb d'évaluations moyen")
-  # plt.title("Graphique du nombre d'évaluations moyen pour 10 exécutions de chaque algo sur une instance de taille donnée")
-  # plt.legend()
-  # plt.show()                    
+          writer.writerow([strategy, N, current_score, current_nbEval, current_nbSolutionCourante])
+          print_matrix(current_matrix)
+          print(current_score)
+          print("Nombre de conflits : ", str(giveNumberOfConflict(current_matrix, N)))
+          print("Nombre de pions : ", str(giveNumberOfPions(current_matrix)))
