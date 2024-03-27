@@ -80,7 +80,7 @@ def first_improvement(matrix, cout, possible_voisins, taille_voisinage):
     # tant que je n'ai pas de voisin minimisant mon score
     print("eval ", str(nb_eval), " sur ", str(cout))
     while best_score <= neighbor_score and nb_eval < cout and taille_artificielle > 0:
-      rd = random.randint(0, taille_artificielle)
+      rd = random.randint(0, taille_artificielle-1)
       i, j, new_i, new_j = voisinage[rd]
       indices = (i, j, new_i, new_j)
       if is_possible_move(matrix, i, j, new_i, new_j):
@@ -148,7 +148,7 @@ def k_improvement(matrix, voisinage, taille_voisinage, k):
     # recherche des K améliorants
     while len(k_voisins_ameliorants) < k and taille_artificielle > 0:
 
-      rd = random.randint(0, taille_artificielle)
+      rd = random.randint(0, taille_artificielle-1)
       i, j, new_i, new_j = voisinage[rd]
       indices = (i, j, new_i, new_j)
       
