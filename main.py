@@ -120,7 +120,7 @@ def first_improvement(matrix, cout, voisinage, taille_voisinage):
       # print("taille arti : ", str(taille_artificielle))
       print("Nombre MAX d'évaluations atteint : ", str(nb_eval))
 
-  return matrix, best_score
+  return matrix, best_score, nb_eval
 
 
 
@@ -201,6 +201,7 @@ if __name__ == "__main__":
   nombre_run = 10
 
   scores_first = []
+  evals_first = []
 
   taille_matrices = [4, 5, 6, 10, 12, 13, 14] #20, 25, 30
 
@@ -217,6 +218,7 @@ if __name__ == "__main__":
 
     possible_voisins, taille_voisinage = generation_voisins(N)
     tab_scores = []
+    tab_nbEval = []
 
 
     # avec un first improvement
@@ -227,11 +229,14 @@ if __name__ == "__main__":
 
       print(f"Itération {iteration+1} ({N})")
 
-      current_matrix, current_score = first_improvement(current_matrix, 200000,
+      _, current_score, current_nbEval = first_improvement(current_matrix, 200000,
                                                       possible_voisins,
                                                       taille_voisinage)
       tab_scores.append(current_score)
+      tab_nbEval.append(current_nbEval)
+
     scores_first.append(tab_scores)
+    evals_first.append(tab_nbEval)
 
 
 
@@ -266,16 +271,32 @@ if __name__ == "__main__":
 
 
 
-  #Moyenne des scores pour chaque first
-  moy_first = []
+  # Pour mes "nombre_run" itérations sur ma matrice de taille N avec first
+  ave_first = []
+  worst_first = []
+  best_first = []
   for tab in scores_first :
-    moy_first.append(sum(tab)/len(tab))
+    ave_first.append(sum(tab)/len(tab))
+    worst_first.append(max(tab))
+    best_first.append(min(tab))
+  aveEval_first = []
+  for tab in evals_first :
+    aveEval_first.append(sum(tab)/len(tab))
 
 
-  plt.plot(taille_matrices, moy_first, 'b-o', label="first improvement")
+  plt.plot(taille_matrices, ave_first, 'b-o', label="first improvement")
   plt.xlabel("N, taille de la matrice")
   plt.xticks(range(min(taille_matrices), max(taille_matrices)+1, 1))
   plt.ylabel("score moyen")
   plt.title("Graphique des scores moyens obtenus pour 10 exécutions de chaque algo sur une instance de taille donnée")
+  plt.legend()
+  plt.show()
+
+
+  plt.plot(taille_matrices, aveEval_first, 'b-o', label="first improvement")
+  plt.xlabel("N, taille de la matrice")
+  plt.xticks(range(min(taille_matrices), max(taille_matrices)+1, 1))
+  plt.ylabel("nb d'évaluations moyen")
+  plt.title("Graphique du nombre d'évaluations moyen pour 10 exécutions de chaque algo sur une instance de taille donnée")
   plt.legend()
   plt.show()                    
