@@ -22,6 +22,7 @@ def best_improvement(matrix, cout, possible_voisins, taille_voisinage):
   nb_eval = 0  # nb d'appel à la fct score
   best_indices = None
   best_score = -1
+  nbSolutionCourante = 1
 
   while best_indices != -1 and nb_eval < cout:
     best_score = fonction_objectif(matrix, taille)
@@ -46,9 +47,7 @@ def best_improvement(matrix, cout, possible_voisins, taille_voisinage):
       (i, j, new_i, new_j) = best_indices
       matrix[i][j] = 0
       matrix[new_i][new_j] = 1
-      # print_matrix(matrix)
-      # print(best_score)
-      # print("=== ET ===")
+      nbSolutionCourante += 1
     elif nb_eval < cout:
       print("Plus de meilleur voisin trouvé (optimum local) !")
       # print("nb eval : ", str(nb_eval))
@@ -56,7 +55,7 @@ def best_improvement(matrix, cout, possible_voisins, taille_voisinage):
     else:
       print("Nombre MAX d'évaluations atteint")
 
-  return matrix, best_score
+  return matrix, best_score, nb_eval, nbSolutionCourante
 
 
 
@@ -67,6 +66,7 @@ def first_improvement(matrix, cout, voisinage, taille_voisinage):
   taille = np.array(matrix).shape[0]
   best_score = fonction_objectif(matrix, taille)
   nb_eval = 1  # nb d'appel à la fct score
+  nbSolutionCourante = 1
 
   best_indices = None
   taille_artificielle = taille_voisinage
@@ -104,10 +104,7 @@ def first_improvement(matrix, cout, voisinage, taille_voisinage):
       (i, j, new_i, new_j) = best_indices
       matrix[i][j] = 0
       matrix[new_i][new_j] = 1
-
-      # print_matrix(matrix)
-      # print(best_score)
-      # print("=== ET ===")
+      nbSolutionCourante += 1
 
       # RAZ des voisins
       taille_artificielle = taille_voisinage
@@ -120,7 +117,7 @@ def first_improvement(matrix, cout, voisinage, taille_voisinage):
       # print("taille arti : ", str(taille_artificielle))
       print("Nombre MAX d'évaluations atteint : ", str(nb_eval))
 
-  return matrix, best_score, nb_eval
+  return matrix, best_score, nb_eval, nbSolutionCourante
 
 
 
@@ -133,6 +130,8 @@ def k_improvement(matrix, voisinage, taille_voisinage, k):
   """
   taille = np.array(matrix).shape[0]
   best_score = fonction_objectif(matrix, taille)
+  nb_eval = 1  # nb d'appel à la fct score
+  nbSolutionCourante = 1
 
   indices = (-1, -1, -1, -1)
   taille_artificielle = taille_voisinage
@@ -155,6 +154,7 @@ def k_improvement(matrix, voisinage, taille_voisinage, k):
         # evaluation
         neighbor_score = relation_de_voisinage(matrix, taille, i, j, new_i,
                                                new_j)
+        nb_eval += 1
         if neighbor_score < best_score:
           k_voisins_ameliorants.append([indices, neighbor_score])
 
@@ -182,6 +182,7 @@ def k_improvement(matrix, voisinage, taille_voisinage, k):
       i, j, new_i, new_j = best_indices
       matrix[i][j] = 0
       matrix[new_i][new_j] = 1
+      nbSolutionCourante += 1
       best_score = best_new_score
       # print_matrix(matrix)
       # print(best_score)
@@ -193,7 +194,7 @@ def k_improvement(matrix, voisinage, taille_voisinage, k):
     else:  # et que taille artificielle == 0
       print("Plus de voisin améliorant trouvé !")
 
-  return matrix, best_score
+  return matrix, best_score, nb_eval, nbSolutionCourante
 
 
 if __name__ == "__main__":
@@ -202,6 +203,7 @@ if __name__ == "__main__":
 
   scores_first = []
   evals_first = []
+  convergence_first = []
 
   taille_matrices = [4, 5, 6, 10, 12, 13, 14] #20, 25, 30
 
@@ -219,6 +221,7 @@ if __name__ == "__main__":
     possible_voisins, taille_voisinage = generation_voisins(N)
     tab_scores = []
     tab_nbEval = []
+    tab_nbSolCou = []
 
 
     # avec un first improvement
@@ -229,14 +232,16 @@ if __name__ == "__main__":
 
       print(f"Itération {iteration+1} ({N})")
 
-      _, current_score, current_nbEval = first_improvement(current_matrix, 200000,
+      _, current_score, current_nbEval, current_nbSolutionCourante = first_improvement(current_matrix, 200000,
                                                       possible_voisins,
                                                       taille_voisinage)
       tab_scores.append(current_score)
       tab_nbEval.append(current_nbEval)
+      tab_nbSolCou.append(current_nbSolutionCourante)
 
     scores_first.append(tab_scores)
     evals_first.append(tab_nbEval)
+    convergence_first.append(tab_nbSolCou)
 
 
 
@@ -282,6 +287,9 @@ if __name__ == "__main__":
   aveEval_first = []
   for tab in evals_first :
     aveEval_first.append(sum(tab)/len(tab))
+  ave_convergence = []
+  for tab in convergence_first :
+    ave_convergence.append(sum(tab)/len(tab))
 
 
   plt.plot(taille_matrices, ave_first, 'b-o', label="first improvement")
