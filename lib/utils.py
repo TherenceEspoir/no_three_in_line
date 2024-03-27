@@ -1,6 +1,7 @@
 import numpy as np
 import copy, random
 
+
 #Fichier de fonctions utilitaires
 
 def transpose(matrice):

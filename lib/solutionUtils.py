@@ -2,6 +2,7 @@
 import copy, random
 import numpy as np
 
+
 from .conflictUtils import giveNumberOfConflict
 
 

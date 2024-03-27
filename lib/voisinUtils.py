@@ -1,6 +1,7 @@
 from .solutionUtils import fonction_objectif, giveNumberOfConflict, giveNumberOfPions
 import random
 
+
 def is_possible_move(matrix, i, j, new_i, new_j):
   """
   Détermine si un mouvement est possible ou non.
