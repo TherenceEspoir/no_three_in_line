@@ -206,9 +206,7 @@ if __name__ == "__main__":
           if data[0] == "NOMBRE_RUN" :
               nombre_run = int(data[1])
 
-  scores_first = []
-  evals_first = []
-  convergence_first = []
+
 
   # taille_matrices = [4, 5, 6, 10, 12, 13, 14] #20, 25, 30
   taille_matrices = [4, 5, 6] #20, 25, 30
@@ -221,23 +219,20 @@ if __name__ == "__main__":
           file.write(" ".join(map(str, row)) + "\n")
 
   # création du fichier résultats
-  with open(f"results/results_1.csv", 'w', newline='') as csvfile:
+  with open(f"results/results_first.csv", 'w', newline='') as csvfile:
     spamwriter = csv.writer(csvfile, delimiter=',',
                                 quotechar='|', quoting=csv.QUOTE_MINIMAL)
     
-    spamwriter.writerow(['N'] + ['itération'] + ['score'] + ['nb_eval'] + ['nb_pas'])
+    spamwriter.writerow(['Strategie'] + ['N'] + ['iteration'] + ['score'] + ['nb_eval'] + ['nb_pas'])
   
 
     # tester les différentes instances
     for N in taille_matrices :
 
       possible_voisins, taille_voisinage = generation_voisins(N)
-      tab_scores = []
-      tab_nbEval = []
-      tab_nbSolCou = []
-
 
       # avec un first improvement
+      strat = "F"
       for iteration in range(nombre_run) :
         # lecture de l'instance initiale
         with open(f"data/instance_{N}.txt", "r") as file:
@@ -248,14 +243,7 @@ if __name__ == "__main__":
         _, current_score, current_nbEval, current_nbSolutionCourante = first_improvement(current_matrix, 200000,
                                                         possible_voisins,
                                                         taille_voisinage)
-        tab_scores.append(current_score)
-        tab_nbEval.append(current_nbEval)
-        tab_nbSolCou.append(current_nbSolutionCourante)
-        spamwriter.writerow([N, iteration +1 , current_score, current_nbEval, current_nbSolutionCourante])
-
-      scores_first.append(tab_scores)
-      evals_first.append(tab_nbEval)
-      convergence_first.append(tab_nbSolCou)
+        spamwriter.writerow([strat, N, iteration +1 , current_score, current_nbEval, current_nbSolutionCourante])
 
 
 
@@ -291,34 +279,34 @@ if __name__ == "__main__":
 
 
   # Pour mes "nombre_run" itérations sur ma matrice de taille N avec first
-  ave_first = []
-  worst_first = []
-  best_first = []
-  for tab in scores_first :
-    ave_first.append(sum(tab)/len(tab))
-    worst_first.append(max(tab))
-    best_first.append(min(tab))
-  aveEval_first = []
-  for tab in evals_first :
-    aveEval_first.append(sum(tab)/len(tab))
-  ave_convergence = []
-  for tab in convergence_first :
-    ave_convergence.append(sum(tab)/len(tab))
+  # ave_first = []
+  # worst_first = []
+  # best_first = []
+  # for tab in scores_first :
+  #   ave_first.append(sum(tab)/len(tab))
+  #   worst_first.append(max(tab))
+  #   best_first.append(min(tab))
+  # aveEval_first = []
+  # for tab in evals_first :
+  #   aveEval_first.append(sum(tab)/len(tab))
+  # ave_convergence = []
+  # for tab in convergence_first :
+  #   ave_convergence.append(sum(tab)/len(tab))
 
 
-  plt.plot(taille_matrices, ave_first, 'b-o', label="first improvement")
-  plt.xlabel("N, taille de la matrice")
-  plt.xticks(range(min(taille_matrices), max(taille_matrices)+1, 1))
-  plt.ylabel("score moyen")
-  plt.title("Graphique des scores moyens obtenus pour 10 exécutions de chaque algo sur une instance de taille donnée")
-  plt.legend()
-  plt.show()
+  # plt.plot(taille_matrices, ave_first, 'b-o', label="first improvement")
+  # plt.xlabel("N, taille de la matrice")
+  # plt.xticks(range(min(taille_matrices), max(taille_matrices)+1, 1))
+  # plt.ylabel("score moyen")
+  # plt.title("Graphique des scores moyens obtenus pour 10 exécutions de chaque algo sur une instance de taille donnée")
+  # plt.legend()
+  # plt.show()
 
 
-  plt.plot(taille_matrices, aveEval_first, 'b-o', label="first improvement")
-  plt.xlabel("N, taille de la matrice")
-  plt.xticks(range(min(taille_matrices), max(taille_matrices)+1, 1))
-  plt.ylabel("nb d'évaluations moyen")
-  plt.title("Graphique du nombre d'évaluations moyen pour 10 exécutions de chaque algo sur une instance de taille donnée")
-  plt.legend()
-  plt.show()                    
+  # plt.plot(taille_matrices, aveEval_first, 'b-o', label="first improvement")
+  # plt.xlabel("N, taille de la matrice")
+  # plt.xticks(range(min(taille_matrices), max(taille_matrices)+1, 1))
+  # plt.ylabel("nb d'évaluations moyen")
+  # plt.title("Graphique du nombre d'évaluations moyen pour 10 exécutions de chaque algo sur une instance de taille donnée")
+  # plt.legend()
+  # plt.show()                    
