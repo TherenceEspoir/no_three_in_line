@@ -209,13 +209,21 @@ if __name__ == "__main__":
       if data[0] == "NOMBRE_RUN" :
         nombre_executions = int(data[1])
               
-  taille_matrices = [4, 5, 9]
-  # taille_matrices = [4, 5, 6, 10, 12, 13, 14] #20, 25, 30
+  # taille_matrices = [4, 5, 9]
+  taille_matrices = [4, 5, 6, 10, 12, 13, 14, 20]
+
+  # création des matrices initiales
+  for N in taille_matrices :
+    current_matrix = giveARandomCandidateSolution(N)
+    with open(f"data/instance_{N}.txt", "w") as file:
+      for row in current_matrix:
+          file.write(" ".join(map(str, row)) + "\n")
+
 
   strategies = ["best", "first", "k2", "k5", "k10"]  # Liste des stratégies incluant kimprovement pour k = 1, 2 et 3
 
 
-  with open("results/results_1.csv", "w") as f:
+  with open("results/results_full_2.csv", "w") as f:
     writer = csv.writer(f)
     writer.writerow(["strategy", "N", "score", "nbEval", "nbSolutionCourante"])
     
@@ -226,9 +234,17 @@ if __name__ == "__main__":
       
       for N in taille_matrices:
         possible_voisins, taille_voisinage = generation_voisins(N)
-        # Générer les instances et calculer les scores
-        for _ in range(nombre_executions):
-          current_matrix = giveARandomCandidateSolution(N)
+        
+        # Calculer les scores
+        for iteration in range(nombre_executions):
+
+          # lecture de l'instance initiale
+          with open(f"data/instance_{N}.txt", "r") as matrix:
+            current_matrix = [[int(x) for x in line.split()] for line in matrix]
+
+          print(f"Itération {iteration+1} ({N})")
+
+
           # Appliquer la stratégie
           if strategy == "best":
             current_matrix, current_score, current_nbEval, current_nbSolutionCourante = best_improvement(current_matrix, 200000,
