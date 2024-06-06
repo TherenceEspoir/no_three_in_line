@@ -17,40 +17,71 @@ def relation_de_voisinage(matrix, taille, i, j, new_i, new_j):
   """
 
   # application des changements
-  matrix[i][j] = 0
-  matrix[new_i][new_j] = 1
-  score = fonction_objectif(matrix, taille)
+  if is_possible_move(matrix, i, j, new_i, new_j) : 
+    matrix[i][j] = 0
+    matrix[new_i][new_j] = 1
+    score = fonction_objectif(matrix, taille)
+
+    # retour à la solution de base pour explorer les autres voisins
+    matrix[i][j] = 1
+    matrix[new_i][new_j] = 0
+
+    return score, 0
+  
+  else :
+    return 10, -1
+
+
+def relation_de_voisinage_v2(matrix, taille, i, j, new_i, new_j):
+  """
+  Permet de déplacer, ajouter ou supprimer un pion, d'obtenir un voisin et de l'évaluer
+  Choix de l'action réalisée fait de manière aléatoire
+  """
+
+  # choix de l'action
+  # action = 0 : déplacement
+  # action = 1 : ajout
+  # action = 2 : suppression
+  action = random.randint(0, 2)
+  modif = True
+
+  # application des changements    
+  if action == 1 and giveNumberOfPions(matrix) < 2*taille and matrix[new_i][new_j] == 0:
+    matrix[new_i][new_j] = 1
+    score = fonction_objectif(matrix, taille)
+  elif action == 2 and giveNumberOfPions(matrix) > 0 and matrix[i][j] == 1:
+    matrix[i][j] = 0
+    score = fonction_objectif(matrix, taille)
+  elif is_possible_move(matrix, i, j, new_i, new_j) :
+    matrix[i][j] = 0
+    matrix[new_i][new_j] = 1
+    score = fonction_objectif(matrix, taille)
+  else : 
+    score = 10
+    modif = False
+
 
   # retour à la solution de base pour explorer les autres voisins
-  matrix[i][j] = 1
-  matrix[new_i][new_j] = 0
+  if action == 1 and modif :
+    matrix[new_i][new_j] = 0
+  elif action == 2 and modif :
+    matrix[i][j] = 1
+  elif modif :
+    matrix[i][j] = 1
+    matrix[new_i][new_j] = 0
+  # sinon il n'y a eu aucune modif
 
-  return score
+  return score, action
 
 
-def relation_de_voisinage_avec_ajout(matrix, taille, i, j, new_i, new_j):
-  """
-  Permet de déplacer un pion, d'obtenir un voisin et de l'évaluer
-  Ajoute un pion si plus de conflit
-  A REVOIR
-  """
-
-  # application des changements
-  matrix[i][j] = 0
-  matrix[new_i][new_j] = 1
-
-  if giveNumberOfConflict(matrix,
-                           taille) == 0 and giveNumberOfPions(matrix) < 2 * taille:
-    #ajout d'un pion
-    while True:
-      a = random.randint(0, taille - 1)
-      b = random.randint(0, taille - 1)
-      if matrix[a][b] == 0:
-        matrix[a][b] = 1
-        break
-
-  return fonction_objectif(matrix, taille)
-
+def apply_changement(matrix, i, j, new_i, new_j, action) :
+  if action == 1 :
+    matrix[new_i][new_j] = 1
+  elif action == 2 :
+    matrix[i][j] = 0
+  else :
+    matrix[i][j] = 0
+    matrix[new_i][new_j] = 1
 
 def generation_voisins(N):
   """
