@@ -19,7 +19,7 @@ def read_data_by_strat(file_path):
 
 
 if __name__ == "__main__":
-    scores_file = 'results/results_full.csv'
+    scores_file = 'results/results_test_v2.csv'
     all_stat = read_data_by_strat(scores_file)
 
     # Calculer les moyennes des scores, des nombres d'évaluations et des nombres de solutions courantes
@@ -34,7 +34,8 @@ if __name__ == "__main__":
         worst_scores_by_strategy[strategy] = {}
         mean_evals_by_strategy[strategy] = {}
         mean_solutions_by_strategy[strategy] = {}
-        for N in [4, 5, 6, 10, 12, 13, 14, 20, 25, 30]:
+        # for N in [4, 5, 6, 10, 12, 13, 14, 20]:
+        for N in [4, 5, 9] :
             scores_for_N = [entry[1] for entry in data if entry[0] == N]
             evals_for_N = [entry[2] for entry in data if entry[0] == N]
             solutions_for_N = [entry[3] for entry in data if entry[0] == N]

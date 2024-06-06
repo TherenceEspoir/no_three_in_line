@@ -34,19 +34,19 @@ def best_improvement(matrix, cout, possible_voisins, taille_voisinage):
         break
 
       i, j, new_i, new_j = possible_voisins[voisin]
-      if is_possible_move(matrix, i, j, new_i, new_j):
 
-        # evaluation
-        score = relation_de_voisinage(matrix, taille, i, j, new_i, new_j)
-        nb_eval += 1
-        if best_score > score:
-          best_score = score
-          best_indices = (i, j, new_i, new_j)
+      # evaluation
+      # score, action = relation_de_voisinage(matrix, taille, i, j, new_i, new_j)
+      score, action = relation_de_voisinage_v2(matrix, taille, i, j, new_i, new_j)
+      if score != 10 : nb_eval += 1
+      if best_score > score:
+        best_score = score
+        best_indices = (i, j, new_i, new_j)
+        best_action = action
 
     if best_indices != -1:  # j'ai trouvé un meilleur voisin
       (i, j, new_i, new_j) = best_indices
-      matrix[i][j] = 0
-      matrix[new_i][new_j] = 1
+      apply_changement(matrix, i, j, new_i, new_j, best_action)
       nbSolutionCourante += 1
     elif nb_eval < cout:
       print("Plus de meilleur voisin trouvé (optimum local) !")
@@ -82,12 +82,13 @@ def first_improvement(matrix, cout, voisinage, taille_voisinage):
       rd = random.randint(0, taille_artificielle-1)
       i, j, new_i, new_j = voisinage[rd]
       indices = (i, j, new_i, new_j)
-      if is_possible_move(matrix, i, j, new_i, new_j):
 
-        # evaluation
-        neighbor_score = relation_de_voisinage(matrix, taille, i, j, new_i,
-                                               new_j)
-        nb_eval += 1
+      # evaluation
+      # neighbor_score, action = relation_de_voisinage(matrix, taille, i, j, new_i,
+      #                                        new_j)
+      neighbor_score, action = relation_de_voisinage_v2(matrix, taille, i, j, new_i,
+                                              new_j)
+      if neighbor_score != 10 : nb_eval += 1
 
       # Dans tous les cas, MAJ des voisins possibles
       part_1 = voisinage[0:rd]
@@ -102,8 +103,7 @@ def first_improvement(matrix, cout, voisinage, taille_voisinage):
       best_score = neighbor_score
       best_indices = indices
       (i, j, new_i, new_j) = best_indices
-      matrix[i][j] = 0
-      matrix[new_i][new_j] = 1
+      apply_changement(matrix, i, j, new_i, new_j, action)
       nbSolutionCourante += 1
 
       # RAZ des voisins
@@ -149,14 +149,15 @@ def k_improvement(matrix, voisinage, taille_voisinage, k):
       i, j, new_i, new_j = voisinage[rd]
       indices = (i, j, new_i, new_j)
       
-      if is_possible_move(matrix, i, j, new_i, new_j):
 
-        # evaluation
-        neighbor_score = relation_de_voisinage(matrix, taille, i, j, new_i,
-                                               new_j)
-        nb_eval += 1
-        if neighbor_score < best_score:
-          k_voisins_ameliorants.append([indices, neighbor_score])
+      # evaluation
+      # neighbor_score, action = relation_de_voisinage(matrix, taille, i, j, new_i,
+      #                                        new_j)
+      neighbor_score, action = relation_de_voisinage_v2(matrix, taille, i, j, new_i,
+                                              new_j)
+      if neighbor_score != 10 : nb_eval += 1
+      if neighbor_score < best_score:
+        k_voisins_ameliorants.append([indices, neighbor_score, action])
 
       # Dans tous les cas, MAJ des voisins possibles
       part_1 = voisinage[0:rd]
@@ -171,17 +172,17 @@ def k_improvement(matrix, voisinage, taille_voisinage, k):
       best_new_score = best_score
 
       for voisin in range(nb_voisins_ameliorants):
-        (i, j, new_i, new_j), score = k_voisins_ameliorants[voisin]
+        (i, j, new_i, new_j), score, action = k_voisins_ameliorants[voisin]
 
         # evaluation
         if best_new_score > score:
           best_new_score = score
           best_indices = (i, j, new_i, new_j)
+          best_action = action
 
       # j'ai trouvé mon meilleur voisin parmi les K améliorants
       i, j, new_i, new_j = best_indices
-      matrix[i][j] = 0
-      matrix[new_i][new_j] = 1
+      apply_changement(matrix, i, j, new_i, new_j, best_action)
       nbSolutionCourante += 1
       best_score = best_new_score
       # print_matrix(matrix)
@@ -223,7 +224,7 @@ if __name__ == "__main__":
   strategies = ["best", "first", "k2", "k5", "k10"]  # Liste des stratégies incluant kimprovement pour k = 1, 2 et 3
 
 
-  with open("results/results_full_2.csv", "w") as f:
+  with open("results/results_full_v2.csv", "w") as f:
     writer = csv.writer(f)
     writer.writerow(["strategy", "N", "score", "nbEval", "nbSolutionCourante"])
     
