@@ -34,7 +34,7 @@ if __name__ == "__main__":
         worst_scores_by_strategy[strategy] = {}
         mean_evals_by_strategy[strategy] = {}
         mean_solutions_by_strategy[strategy] = {}
-        for N in [4, 5, 6, 10, 12, 13, 14, 20, 25, 30]:
+        for N in [4, 5, 6, 10, 12, 13, 14, 20]:
             scores_for_N = [entry[1] for entry in data if entry[0] == N]
             evals_for_N = [entry[2] for entry in data if entry[0] == N]
             solutions_for_N = [entry[3] for entry in data if entry[0] == N]

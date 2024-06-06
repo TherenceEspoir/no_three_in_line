@@ -197,7 +197,60 @@ def k_improvement(matrix, voisinage, taille_voisinage, k):
   return matrix, best_score, nb_eval, nbSolutionCourante 
 
 
-                   
+#méthode de pertubation
+def pertubation(matrix,number_of_pertubation):
+  taille = len(matrix)
+
+  for _ in range(number_of_pertubation):
+
+    i = random.randint(0, taille - 1)
+    j = random.randint(0, taille - 1)
+
+    new_i = random.randint(0, taille - 1)
+    new_j = random.randint(0, taille - 1)
+
+    #while not is_possible_move(matrix, i, j, new_i, new_j):
+    while(matrix[i][j] == matrix[new_i][new_j] ):
+      i = random.randint(0, taille - 1)
+      j = random.randint(0, taille - 1)
+      new_i = random.randint(0, taille - 1)
+      new_j = random.randint(0, taille - 1)
+    matrix[i][j] , matrix[new_i][new_j] = matrix[new_i][new_j], matrix[i][j]
+  return matrix
+
+
+def ils(matrix, cout, possible_voisins, taille_voisinage, strategy, perturbation_strength=1, max_iterations=100):
+    """
+    Implémentation de l'Iterated Local Search (ILS).
+    """
+    taille = len(matrix)
+    best_matrix = copy.deepcopy(matrix)
+    best_score = fonction_objectif(best_matrix, taille)
+    nb_eval = 1
+
+    for _ in range(max_iterations):
+        if strategy == "best":
+            matrix, score, evaluations, nbSolutionCourante = best_improvement(matrix, cout, possible_voisins, taille_voisinage)
+        elif strategy == "first":
+            matrix, score, evaluations, nbSolutionCourante = first_improvement(matrix, cout, possible_voisins, taille_voisinage)
+        elif strategy.startswith("k"):
+            k = int(strategy[1:])
+            matrix, score, evaluations, nbSolutionCourante = k_improvement(matrix, possible_voisins, taille_voisinage, k)
+        else:
+            raise ValueError("Stratégie non valide")
+
+        nb_eval += evaluations
+
+        if score < best_score:
+            best_matrix = copy.deepcopy(matrix)
+            best_score = score
+
+        if nb_eval >= cout:
+            break
+
+        matrix = pertubation(best_matrix, perturbation_strength)
+
+    return best_matrix, best_score, nb_eval                   
       
 
 if __name__ == "__main__":
@@ -220,7 +273,7 @@ if __name__ == "__main__":
           file.write(" ".join(map(str, row)) + "\n")
 
 
-  strategies = ["best", "first", "k2", "k5", "k10"]  # Liste des stratégies incluant kimprovement pour k = 1, 2 et 3
+  strategies = ["best", "first", "k2", "k5", "k10","ils"]  # Liste des stratégies incluant kimprovement pour k = 1, 2 et 3
 
 
   with open("results/results_full_2.csv", "w") as f:
@@ -244,9 +297,14 @@ if __name__ == "__main__":
 
           print(f"Itération {iteration+1} ({N})")
 
-
           # Appliquer la stratégie
-          if strategy == "best":
+
+          if strategy == "ils":
+                        current_matrix, current_score, current_nbEval = ils(
+                            current_matrix, 200000, possible_voisins, taille_voisinage, strategy="best", perturbation_strength=2, max_iterations=10
+                        )
+                    
+          elif strategy == "best":
             current_matrix, current_score, current_nbEval, current_nbSolutionCourante = best_improvement(current_matrix, 200000,
                                                         possible_voisins,
                                                         taille_voisinage)
