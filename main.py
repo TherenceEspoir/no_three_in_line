@@ -224,19 +224,19 @@ def ils(matrix, cout, possible_voisins, taille_voisinage, strategy, perturbation
     """
     Implémentation de l'Iterated Local Search (ILS).
     """
-    taille = len(matrix)
-    best_matrix = copy.deepcopy(matrix)
-    best_score = fonction_objectif(best_matrix, taille)
-    nb_eval = 1
-    nbpas=1
+    perturbation_strength = int(len(matrix) / 2)
+    # best_matrix = copy.deepcopy(matrix)
+    # best_score = fonction_objectif(best_matrix, taille)
+    nb_eval = 0
+    nbpas=0
 
     if strategy == "best":
-              matrix, score, evaluations, nbSolutionCourante = best_improvement(matrix, cout, possible_voisins, taille_voisinage)
+        best_matrix, best_score, evaluations, nbSolutionCourante = best_improvement(matrix, cout-nb_eval, possible_voisins, taille_voisinage)
     elif strategy == "first":
-        matrix, score, evaluations, nbSolutionCourante = first_improvement(matrix, cout, possible_voisins, taille_voisinage)
+        best_matrix, best_score, evaluations, nbSolutionCourante = first_improvement(matrix, cout-nb_eval, possible_voisins, taille_voisinage)
     elif strategy.startswith("k"):
         k = int(strategy[1:])
-        matrix, score, evaluations, nbSolutionCourante = k_improvement(matrix, possible_voisins, taille_voisinage, k)
+        best_matrix, best_score, evaluations, nbSolutionCourante = k_improvement(matrix, possible_voisins, taille_voisinage, k)
     else:
         raise ValueError("Stratégie non valide")
     nb_eval += evaluations
@@ -246,21 +246,21 @@ def ils(matrix, cout, possible_voisins, taille_voisinage, strategy, perturbation
     while nb_eval < cout:
         matrix = pertubation(best_matrix, perturbation_strength)
         if strategy == "best":
-            matrix, score, evaluations, nbSolutionCourante = best_improvement(matrix, cout, possible_voisins, taille_voisinage)
+            maybeBest_matrix, maybeBest_score, evaluations, nbSolutionCourante = best_improvement(matrix, cout-nb_eval, possible_voisins, taille_voisinage)
         elif strategy == "first":
-            matrix, score, evaluations, nbSolutionCourante = first_improvement(matrix, cout, possible_voisins, taille_voisinage)
+            maybeBest_matrix, maybeBest_score, evaluations, nbSolutionCourante = first_improvement(matrix, cout-nb_eval, possible_voisins, taille_voisinage)
         elif strategy.startswith("k"):
             k = int(strategy[1:])
-            matrix, score, evaluations, nbSolutionCourante = k_improvement(matrix, possible_voisins, taille_voisinage, k)
+            maybeBest_matrix, maybeBest_score, evaluations, nbSolutionCourante = k_improvement(matrix, possible_voisins, taille_voisinage, k)
         else:
             raise ValueError("Stratégie non valide")
 
         nb_eval += evaluations
         nbpas+=1
 
-        if score < best_score:
-            best_matrix = copy.deepcopy(matrix)
-            best_score = score
+        if maybeBest_score < best_score:
+            best_matrix = copy.deepcopy(maybeBest_matrix)
+            best_score = maybeBest_score
 
         
 
@@ -290,7 +290,7 @@ if __name__ == "__main__":
   #strategies = ["best", "first", "k2", "k5", "k10","ils"]  # Liste des stratégies incluant kimprovement pour k = 1, 2 et 3
   strategies = ["ils"]
 
-  with open("results/results_best_v2.csv", "w") as f:
+  with open("results/results_ilsbest_v22.csv", "w") as f:
     writer = csv.writer(f)
     writer.writerow(["strategy", "N", "score", "nbEval", "nbSolutionCourante"])
     
