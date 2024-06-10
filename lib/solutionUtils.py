@@ -41,5 +41,8 @@ def fonction_objectif(matrice, taille):
   This function calculates the objective function for the given matrices.
   """
   nb_conflit = giveNumberOfConflict(matrice, taille)
-
-  return round(1 - ((giveNumberOfPions(matrice) - nb_conflit) / (2 * taille)), 4)
+  nb_pions = giveNumberOfPions(matrice)
+  # print("nco : ", nb_conflit)
+  # print("npi : ", nb_pions)
+  # print(1 - ((nb_pions - nb_conflit) / (2 * taille)))
+  return round(1 - ((nb_pions - nb_conflit) / (2 * taille)), 4)

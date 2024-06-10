@@ -36,8 +36,8 @@ def best_improvement(matrix, cout, possible_voisins, taille_voisinage):
       i, j, new_i, new_j = possible_voisins[voisin]
 
       # evaluation
-      # score, action = relation_de_voisinage(matrix, taille, i, j, new_i, new_j)
-      score, action = relation_de_voisinage_v2(matrix, taille, i, j, new_i, new_j)
+      score, action = relation_de_voisinage(matrix, taille, i, j, new_i, new_j)
+      # score, action = relation_de_voisinage_v2(matrix, taille, i, j, new_i, new_j)
       if score != 10 : nb_eval += 1
       if best_score > score:
         best_score = score
@@ -123,7 +123,7 @@ def first_improvement(matrix, cout, voisinage, taille_voisinage):
 
 
 
-def k_improvement(matrix, voisinage, taille_voisinage, k):
+def k_improvement(matrix, voisinage, taille_voisinage, k, cout):
   """
   Cherche k voisins améliorants parmi les voisins possibles
   Puis prend le meilleur parmi ces k voisins
@@ -143,7 +143,7 @@ def k_improvement(matrix, voisinage, taille_voisinage, k):
     k_voisins_ameliorants = []
 
     # recherche des K améliorants
-    while len(k_voisins_ameliorants) < k and taille_artificielle > 0:
+    while len(k_voisins_ameliorants) < k and taille_artificielle > 0 and nb_eval < cout:
 
       rd = random.randint(0, taille_artificielle-1)
       i, j, new_i, new_j = voisinage[rd]
@@ -168,7 +168,7 @@ def k_improvement(matrix, voisinage, taille_voisinage, k):
     nb_voisins_ameliorants = len(k_voisins_ameliorants)
     if nb_voisins_ameliorants != 0:
       print(f"{nb_voisins_ameliorants} voisins améliorants trouvés")
-      print(f"Taille du voisinage : {taille_voisinage}")
+      # print(f"Taille du voisinage : {taille_voisinage}")
       best_new_score = best_score
 
       for voisin in range(nb_voisins_ameliorants):
@@ -192,8 +192,12 @@ def k_improvement(matrix, voisinage, taille_voisinage, k):
       # RAZ des voisins
       taille_artificielle = taille_voisinage
 
-    else:  # et que taille artificielle == 0
+    # else:  # et que taille artificielle == 0
+    #   print("Plus de voisin améliorant trouvé !")
+    elif taille_artificielle == 0:
       print("Plus de voisin améliorant trouvé !")
+    elif nb_eval >= cout:
+      print("Nombre MAX d'évaluations atteint : ", str(nb_eval))
 
   return matrix, best_score, nb_eval, nbSolutionCourante 
 
@@ -236,7 +240,7 @@ def ils(matrix, cout, possible_voisins, taille_voisinage, strategy, perturbation
         best_matrix, best_score, evaluations, nbSolutionCourante = first_improvement(matrix, cout-nb_eval, possible_voisins, taille_voisinage)
     elif strategy.startswith("k"):
         k = int(strategy[1:])
-        best_matrix, best_score, evaluations, nbSolutionCourante = k_improvement(matrix, possible_voisins, taille_voisinage, k)
+        best_matrix, best_score, evaluations, nbSolutionCourante = k_improvement(matrix, possible_voisins, taille_voisinage, k, cout-nb_eval)
     else:
         raise ValueError("Stratégie non valide")
     nb_eval += evaluations
@@ -251,7 +255,7 @@ def ils(matrix, cout, possible_voisins, taille_voisinage, strategy, perturbation
             maybeBest_matrix, maybeBest_score, evaluations, nbSolutionCourante = first_improvement(matrix, cout-nb_eval, possible_voisins, taille_voisinage)
         elif strategy.startswith("k"):
             k = int(strategy[1:])
-            maybeBest_matrix, maybeBest_score, evaluations, nbSolutionCourante = k_improvement(matrix, possible_voisins, taille_voisinage, k)
+            maybeBest_matrix, maybeBest_score, evaluations, nbSolutionCourante = k_improvement(matrix, possible_voisins, taille_voisinage, k, cout-nb_eval)
         else:
             raise ValueError("Stratégie non valide")
 
@@ -290,7 +294,7 @@ if __name__ == "__main__":
   #strategies = ["best", "first", "k2", "k5", "k10","ils"]  # Liste des stratégies incluant kimprovement pour k = 1, 2 et 3
   strategies = ["ils"]
 
-  with open("results/results_ilsbest_v22.csv", "w") as f:
+  with open("results/results_ilsk5_v2j.csv", "w") as f:
     writer = csv.writer(f)
     writer.writerow(["strategy", "N", "score", "nbEval", "nbSolutionCourante"])
     
@@ -315,7 +319,7 @@ if __name__ == "__main__":
 
           if strategy == "ils":
                         current_matrix, current_score, current_nbEval,current_nbSolutionCourante = ils(
-                            current_matrix, 200000, possible_voisins, taille_voisinage, strategy="best", perturbation_strength=2
+                            current_matrix, 200000, possible_voisins, taille_voisinage, strategy="k5", perturbation_strength=2
                         )
                     
           elif strategy == "best":
